@@ -2,6 +2,7 @@ package com.twave.todolist;
 
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
@@ -10,9 +11,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.View;
 
+import com.twave.todolist.data.TaskContract;
 import com.twave.todolist.data.TaskContract.TaskEntity;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
@@ -35,6 +38,26 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         mAdapter = new TaskCursorAdapter(this);
         mRecyclerView.setAdapter(mAdapter);
 
+        // TODO (7-1) Swipe To Delete
+        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT|ItemTouchHelper.RIGHT) {
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                int id = (int) viewHolder.itemView.getTag();
+
+                String stringId = Integer.toString(id);
+                Uri uri = TaskEntity.CONTENT_URI;
+                uri = uri.buildUpon().appendPath(stringId).build();
+
+                getContentResolver().delete(uri, null, null);
+
+                getSupportLoaderManager().restartLoader(TASK_LOADER_ID, null, MainActivity.this);
+            }
+        }).attachToRecyclerView(mRecyclerView);
 
         // TODO (0-12) FAB 클릭시 Task 추가 Activity 호출
         FloatingActionButton fabButton = (FloatingActionButton) findViewById(R.id.fab);
