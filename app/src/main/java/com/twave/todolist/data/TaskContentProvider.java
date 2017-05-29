@@ -21,7 +21,7 @@ public class TaskContentProvider extends ContentProvider{
     public boolean onCreate() {
         // TODO (1-2) DB Helper 객체를 생성한다.
         mTaskDbHelper = new TaskDbHelper(getContext());
-        return false;
+        return true;
     }
 
     @Nullable
