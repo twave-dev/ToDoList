@@ -10,13 +10,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
+
+import com.twave.todolist.data.TaskContract.TaskEntity;
 
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>{
 // TODO (0-14) LoaderCallbacks 구현
     RecyclerView mRecyclerView;
     TaskCursorAdapter mAdapter;
 
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final int TASK_LOADER_ID = 0;
 
     @Override
@@ -74,8 +78,18 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             public Cursor loadInBackground() {
-                // Will implement to load data
-                return null;
+                // TODO 5-2
+                try {
+                    return getContentResolver().query(TaskEntity.CONTENT_URI
+                            , null
+                            , null
+                            , null
+                            , TaskEntity.COL_PRIORITY);
+                } catch (Exception e) {
+                    Log.e(TAG, "Failed to asynchronously load data.");
+                    e.printStackTrace();
+                    return null;
+                }
             }
 
             // TODO (0-17)
