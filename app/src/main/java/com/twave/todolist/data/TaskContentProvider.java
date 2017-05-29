@@ -1,13 +1,17 @@
 package com.twave.todolist.data;
 
 import android.content.ContentProvider;
+import android.content.ContentUris;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.UriMatcher;
 import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.twave.todolist.data.TaskContract.TaskEntity;
 
 /**
  * Created by TIGER on 2017-05-29.
@@ -29,7 +33,7 @@ public class TaskContentProvider extends ContentProvider{
         UriMatcher uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
         uriMatcher.addURI(TaskContract.AUTHORITY, TaskContract.PATH_TASKS, TASKS);
-        uriMatcher.addURI(TaskContract.AUTHORITY, TaskContract.PATH_TASKS, TASK_WITH_ID);
+        uriMatcher.addURI(TaskContract.AUTHORITY, TaskContract.PATH_TASKS + "/#", TASK_WITH_ID);
 
         return uriMatcher;
     }
@@ -56,7 +60,28 @@ public class TaskContentProvider extends ContentProvider{
     @Nullable
     @Override
     public Uri insert(@NonNull Uri uri, @Nullable ContentValues values) {
-        return null;
+        // TODO (4-1) INSERT
+        final SQLiteDatabase db = mTaskDbHelper.getWritableDatabase();
+
+        int match = sUriMatcher.match(uri);
+        Uri returnUri;
+
+        switch (match) {
+            case TASKS  :
+                long id = db.insert(TaskEntity.TABLE_NAME, null, values);
+                if(id > 0) {
+                    returnUri = ContentUris.withAppendedId(TaskEntity.CONTENT_URI, id);
+                } else {
+                    throw new SQLException("Failed to insert row into " + uri);
+                }
+                break;
+            default:
+                throw new UnsupportedOperationException("Unknown uri: " + uri);
+        }
+
+        getContext().getContentResolver().notifyChange(uri, null);
+
+        return returnUri;
     }
 
     @Override
