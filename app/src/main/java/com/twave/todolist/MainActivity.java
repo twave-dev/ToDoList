@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
             @Override
             public Cursor loadInBackground() {
-                // TODO 5-2
+                // TODO (5-2)
                 try {
                     return getContentResolver().query(TaskEntity.CONTENT_URI
                             , null
